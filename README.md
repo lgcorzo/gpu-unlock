@@ -40,6 +40,92 @@ in `/etc/default/grub`, then run `sudo update-grub`.
 - **UKI / generated entries:** add it to `/etc/kernel/cmdline` and regenerate
 your boot images/entries (e.g. `sudo mkinitcpio -P` for mkinitcpio UKIs).
 
+---
+
+## Dark Gravity Host Setup Guide (Ubuntu 24.04 LTS)
+
+Tailored installation instructions for the **Dark Gravity PC** (`server.internal.lgcorzo`), running **Ubuntu 24.04 LTS** (Kernel 6.17) equipped with an **NVIDIA GeForce RTX 3060 (GA106)** at PCI slot `0000:01:00.0`.
+
+### 1. Prerequisites & Build Dependencies
+
+Ensure essential compilation tools, Linux kernel headers, DKMS, and packaging helpers are present:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential dkms dpkg-dev debhelper xz-utils python3 linux-headers-$(uname -r)
+```
+
+### 2. Build & Install Debian/DKMS Packages
+
+From the root of this repository (`/mnt/F024B17C24B145FE/Repos/gpu-unlock`):
+
+```bash
+# Option A: Automatic detection & deb package build/install
+make install-deb
+
+# Or build debian packages manually:
+make deb
+sudo dpkg -i build/deb/gpu-unlock-dkms_*.deb build/deb/gpu-unlock-firmware_*.deb
+```
+
+> **Note:** The installer builds the DKMS kernel module and registers the `initramfs-tools` drop-ins (`/usr/share/initramfs-tools/modules.d/gpu-unlock.conf` and `/usr/share/initramfs-tools/scripts/init-top/gpu-unlock`) so the module and firmware load in the early boot sequence before `nvidia` attaches.
+
+### 3. Configure GRUB Kernel Parameters
+
+On the Dark Gravity PC, enable the unlock module by appending `gpu_unlock.targets=all` (or targeting `0000:01:00.0` directly) to the kernel command line:
+
+1. Edit `/etc/default/grub`:
+   ```bash
+   sudo nano /etc/default/grub
+   ```
+2. Update `GRUB_CMDLINE_LINUX_DEFAULT` to include `gpu_unlock.targets=all`:
+   ```text
+   GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nvidia.NVreg_PreserveVideoMemoryAllocations=1 gpu_unlock.targets=all"
+   ```
+   *(Or target specifically: `gpu_unlock.targets=0000:01:00.0`)*
+
+3. Update GRUB and regenerate your initramfs:
+   ```bash
+   sudo update-grub
+   sudo update-initramfs -u -k all
+   ```
+
+### 4. Reboot and Verify
+
+Reboot the Dark Gravity host:
+```bash
+sudo reboot
+```
+
+After rebooting, verify that `gpu_unlock` executed during early boot and attached to the GA106 card:
+
+```bash
+# Check dmesg / journalctl for successful unlock messages:
+journalctl -k -b | grep gpu_unlock
+
+# Verify the PCI device details:
+lspci -nnk -s 0000:01:00.0
+```
+
+Expected log output will indicate the GA106 (RTX 3060) unlock sequence, speed selectors written, and FLR executed prior to the NVIDIA driver initialization.
+
+### 5. How to Completely Uninstall / Roll Back
+
+If you ever wish to remove the unlock module and revert to 100% stock NVIDIA driver behavior, an automated uninstallation script has been provided:
+
+```bash
+sudo ./uninstall.sh
+```
+
+This automated script performs full cleanup:
+1. Purges `gpu-unlock-dkms` and `gpu-unlock-firmware` packages and DKMS modules.
+2. Removes all residual firmware files in `/usr/lib/firmware/gpu-unlock/`.
+3. Strips `gpu_unlock.targets=*` from `/etc/default/grub`.
+4. Runs `update-grub` to regenerate `/boot/grub/grub.cfg`.
+5. Runs `update-initramfs -u -k all` to rebuild clean initramfs images.
+
+---
+
 # FAQ
 
 - Q: Does this depend on a specific driver version? I see `610.43.03` is pinned.  
