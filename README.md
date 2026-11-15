@@ -47,7 +47,7 @@ your boot images/entries (e.g. `sudo mkinitcpio -P` for mkinitcpio UKIs).
 
 ## Dark Gravity Host Setup Guide (Ubuntu 24.04 LTS)
 
-Tailored installation instructions for the **Dark Gravity PC** (`server.internal.lgcorzo`), running **Ubuntu 24.04 LTS** (Kernel 6.17) equipped with an **NVIDIA GeForce RTX 3060 (GA106)** at PCI slot `0000:01:00.0`.
+Tailored installation instructions for the **Dark Gravity PC** (`<TARGET_HOST>`), running **Ubuntu 24.04 LTS** (Kernel 6.17) equipped with an **NVIDIA GeForce RTX 3060 (GA106)** at PCI slot `0000:01:00.0`.
 
 ### 1. Prerequisites & Build Dependencies
 
@@ -60,7 +60,7 @@ sudo apt-get install -y build-essential dkms dpkg-dev debhelper xz-utils python3
 
 ### 2. Build & Install Debian/DKMS Packages
 
-From the root of this repository (`/mnt/F024B17C24B145FE/Repos/gpu-unlock`):
+From the root of the cloned repository (`./gpu-unlock`):
 
 ```bash
 # Option A: Automatic detection & deb package build/install
@@ -270,5 +270,5 @@ SOL: 8Rih6HY7V4LcdjYHz4iSffT4fTniqw5CACaBigSVxNYu
 
 ### Fork Maintenance & Agent Transparency
 
-- **Changes vs. Upstream:** Security dependency updates, CI/CD workflow fixes, and CodeQL remediation are tracked in the [commit history](../../commits) and [Pull Requests](../../pulls?q=is%3Apr).
+- **Changes vs. Upstream:** Security dependency updates, CI/CD workflow fixes, and CodeQL remediation are tracked in the [commit history](https://github.com/lgcorzo/gpu-unlock/commits) and [Pull Requests](https://github.com/lgcorzo/gpu-unlock/pulls?q=is%3Apr).
 - **Agent Tagging (`[agent]`):** Commits and pull requests generated automatically by agents in the Dark Gravity pipeline are prefixed with `[agent]` to distinguish automated maintenance from manual work.
