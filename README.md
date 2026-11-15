@@ -1,5 +1,8 @@
 # GPU unlock 1.1.0
 
+Maintained fork of [Zagitta/gpu-unlock](https://github.com/Zagitta/gpu-unlock). It applies security patches and maintenance fixes on top of upstream. Part of the [Dark Gravity](https://github.com/lgcorzo/rust_CACD_autonomous_factory) factory.
+
+
 Unlock FP/BF16 instruction issue rate on consumer Nvidia 30 series cards to their professional equivalents
 
 This Linux kernel module combines the cmpunlocker's V67/PLM technique with the pre-driver timing of the UEFI approach. It runs the unlock, writes the speed selectors (SS0 `0x88888888`, which selects the full BF16 rate, and the 4-bit SS1 `0x8` IMLA4) and performs FLR before the unmodified NVIDIA driver binds the card. It is neither a UEFI application nor a patched NVIDIA driver. 
